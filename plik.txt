@@ -1,0 +1,7 @@
+Ilosc obszarow:
+4
+Nr obszaru:	x1:	x2:	
+1	0	4
+2	4	6.3
+3	6.3	7.5
+4	7.5	10

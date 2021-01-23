@@ -3,7 +3,8 @@
 //
 
 #pragma once
-#include "MES_Projekt.h"
+#include "MES_ProjektDoc.h"
+#include "pch.h"
 
 class CMESProjektView : public CView
 {
@@ -15,48 +16,24 @@ protected: // create from serialization only
 public:
 
 	CMESProjektDoc* GetDocument() const;
-	bool Rysuj = false;
 	CString FilePathName;
 	float liczbaobszarow;
-	float liczbawezlow = 0;
 	float dlugosc;
-	float zageszczenie;
-	float skala = 1;
-	float yos0 = 590;
-	float xos0 = 15;
-	float yos00 = 590;
-	float xos00 = 15;
-	bool czy_pokrywa = false;
-	bool RysSiatka = false;
-	float x_max = 0;
-	float y_max = 0;
-	float xPos = 0;
-	float yPos = 0;
-	float xxpos;
-	float yypos;
-	float skalaTrue;
-	double tempmin;
-	double tempmax;
-	bool TempRysuj = false;
-	bool RozRysuj = false;
-	bool RysSiatkaU = false;
-	bool RozRysujU = false;
-	bool TempRysujU = false;
-	bool err = false;
-	bool ZapiszU = true;
+	float x1;
+	float x2;
+	int nr;
+	float y0 = 20;
+	float x0 = 50;
+	bool obszary = false;
+	float skl;
 
-	//std::vector<float> wynikRozw;
-	float** tablica;
 	std::vector<float> wynikRozw;
+
 
 
 	// Operations
 public:
-	//std::vector <Input> wektor_obszarow;
-	//std::vector <WarunkiBrzegowe> wektor_warunkow_brzegowych;
-	std::vector<float>wsp_x;
-	std::vector<float>wsp_y;
-
+	std::vector<float> tablica;
 
 // Overrides----tego nie ruszam
 public:
@@ -86,6 +63,7 @@ public:
 	afx_msg void OnMenuZagescsiatke();
 	afx_msg void OnMenuRysujrozkladtemp();
 	afx_msg void OnMenuZapiszplik();
+	void czytaj(std::fstream& plik);
 	void RysujObszary(CDC* pDC);
 };
 
