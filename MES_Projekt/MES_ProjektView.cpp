@@ -208,7 +208,7 @@ CMESProjektDoc* CMESProjektView::GetDocument() const // non-debug version is inl
 // CMESProjektView message handlers
 
 
-//----------rysowanie obszarow---------------
+//-----------rysowanie obszarow---------------
 
 void CMESProjektView::RysujObszary(CDC* pDC)
 {
