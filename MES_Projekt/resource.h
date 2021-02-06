@@ -1,4 +1,4 @@
-﻿//{{NO_DEPENDENCIES}}---------- tutaj tez nic nie ruszam-------
+﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by MESProjekt.rc
 //

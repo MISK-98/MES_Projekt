@@ -16,6 +16,7 @@
 #include "limits"
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 //#define NOMINMAX
 #ifdef _DEBUG
@@ -33,7 +34,6 @@ BEGIN_MESSAGE_MAP(CMESProjektView, CView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
 	ON_COMMAND(ID_MENU_WCZYTAJPLIK, &CMESProjektView::OnMenuWczytajplik)
-	ON_COMMAND(ID_MENU_GENERUJSIATK32772, &CMESProjektView::OnMenuGenerujsiatke)
 	ON_COMMAND(ID_MENU_ZAG32773, &CMESProjektView::OnMenuZagescsiatke)
 	ON_COMMAND(ID_MENU_RYSUJROZK32775, &CMESProjektView::OnMenuRysujrozkladtemp)
 	ON_COMMAND(ID_MENU_ZAPISZPLIK, &CMESProjektView::OnMenuZapiszplik)
@@ -91,7 +91,7 @@ void CMESProjektView::OnDraw(CDC *pDC)
 
 	CString floatString;
 
-	//--------------Zapisanie tekstu z menu------------
+	//--------------Zapisanie tekstu z menu, bieranie poleceń w całość------------
 
 	floatString = "Ilosc obszarow:";
 	pDC->TextOutW(50, 250, floatString);
@@ -112,7 +112,6 @@ void CMESProjektView::OnDraw(CDC *pDC)
 	floatString = "Tu bedzie temp_max";
 	pDC->TextOutW(950, 273, floatString);
 
-	//--------To powinno byc w jakims if zeby cyfry wyswietlaly sie gdy zadziala funkcja rysujaca siatke------------
 	if (obszary)
 	{
 		RysujObszary(pDC);
@@ -122,46 +121,58 @@ void CMESProjektView::OnDraw(CDC *pDC)
 		pDC->TextOutW(160, 250, floatString);
 		floatString.Format(_T("%.0f"), dlugosc);
 		pDC->TextOutW(150, 340, floatString);
-		//floatString.Format(_T("%.0f"), liczbawezlow);
-		//pDC->TextOutW(1170, 100, floatString);
+		floatString.Format(_T("%.0f"), liczbawezlow);
+		pDC->TextOutW(195, 280, floatString);
 		//floatString.Format(_T("%.0f"), tempmax);
 		//pDC->TextOutW(1170, 100, floatString);
-		//floatString.Format(_T("%.0f"), zageszczenie);
-		//pDC->TextOutW(1170, 70, floatString);
-		/*for (float j = 0; j < liczbaobszarow; j++)
-		{
-			if ((xxpos - xos0) < (skala * wektor_obszarow[j].x4) && (skala * wektor_obszarow[j].x1) < (xxpos - xos0))
-			{
-				if ((yos0 - yypos) < (skala * wektor_obszarow[j].y4) && (skala * wektor_obszarow[j].y1) < (yos0 - yypos))
-				{
-
-					floatString = "numer obszaru:";
-					pDC->TextOutW(980, 160, floatString);
-					floatString = "gestosc mocy [W/m^2]:";
-					pDC->TextOutW(980, 180, floatString);
-					floatString = "przewodnosc x [W/(m * K)]:";
-					pDC->TextOutW(980, 200, floatString);
-					floatString = "przewodnosc y [W/(m* K):";
-					pDC->TextOutW(980, 220, floatString);
-					floatString = "material:";
-					pDC->TextOutW(980, 240, floatString);
-
-					floatString.Format(_T("%.0f"), wektor_obszarow[j].nr);
-					pDC->TextOutW(1170, 160, floatString);
-					floatString.Format(_T("%.0f"), wektor_obszarow[j].moc_zrodla * pow(10, 6));
-					pDC->TextOutW(1170, 180, floatString);
-					floatString.Format(_T("%.0f"), wektor_obszarow[j].przewodnosc_x * 1000);
-					pDC->TextOutW(1170, 200, floatString);
-					floatString.Format(_T("%.0f"), wektor_obszarow[j].przewodnosc_y * 1000);
-					pDC->TextOutW(1170, 220, floatString);
-
-					pDC->TextOutW(1170, 240, CString(wektor_obszarow[j].material));
-				}
-			}
-		}*/
-
 	}
 
+	if (zagesc)
+	{
+		liczbawezlow = 0;
+		for (int i = 0; i < tablica.size(); i++)
+		{
+			tablica2.push_back(tablica[i]);
+		}
+		sort(tablica2.begin(), tablica2.end());
+		for (int i = 0; i < tablica2.size() - 1; i++)
+		{
+			wsp = (tablica2[i + 1] - tablica2[i]) / zageszczenie;
+			for (int j = 0; j < zageszczenie; j++)
+			{
+				wsp2 = tablica2[i] + t;
+				obliczenia.push_back(wsp2);
+				t = t + wsp;
+			}
+			t = 0;
+			wsp = 0;
+		}
+
+		for (int i = 0; i < obliczenia.size(); i++)
+		{
+			tablica2.push_back(obliczenia[i]);
+		}
+		sort(tablica2.begin(), tablica2.end());
+		liczbaobszarow2 = tablica2.size() - 1 - liczbaobszarow;
+		liczbawezlow2 = (tablica2.size() - liczbaobszarow) * 2;
+
+		RysujSiatke(pDC);
+		floatString.Format(_T("%.0f"), dlugosc);
+		pDC->TextOutW(935, 220, floatString);
+		floatString.Format(_T("%.0f"), liczbaobszarow2);
+		pDC->TextOutW(160, 250, floatString);
+		floatString.Format(_T("%.0f"), dlugosc);
+		pDC->TextOutW(150, 340, floatString);
+		floatString.Format(_T("%.0f"), liczbawezlow2);
+		pDC->TextOutW(195, 280, floatString);
+		floatString.Format(_T("%.0f"), zageszczenie);
+		pDC->TextOutW(200, 370, floatString);
+
+		tablica2.clear();
+		obliczenia.clear();
+		liczbaobszarow2 = 0;
+
+	}
 }
 
 
@@ -208,23 +219,41 @@ CMESProjektDoc* CMESProjektView::GetDocument() const // non-debug version is inl
 // CMESProjektView message handlers
 
 
-//-----------rysowanie obszarow---------------
+//-----------Rysowanie obszarow---------------
 
 void CMESProjektView::RysujObszary(CDC* pDC)
 {
 	skl = 900 / dlugosc;  //do przeskalowania
-	CPen pen2(PS_SOLID, 1, RGB(0, 0, 0));
+	CPen pen2(PS_SOLID, 2, RGB(0, 0, 0));
 	CPen* oldpen2 = pDC->SelectObject(&pen2);
-	for (int i = 0; i < liczbaobszarow; i++)
+	for (int i = 0; i <= liczbaobszarow; i++)
 	{
-		x0 == x0 + skl * tablica[i];
+		x0 == x0 + (skl * tablica[i]);
 
 		pDC->MoveTo((x0 + (skl * tablica[i])), y0);
 		pDC->LineTo((x0 + (skl * tablica[i])), (y0 + 200));
 	}
 }
 
-//----------wczytywanie pliku-------------
+//---------------Rysowanie zagęszczonej siatki----------------
+
+void CMESProjektView::RysujSiatke(CDC* pDC)
+{
+	x0 = 50;
+	y0 = 20;
+	CPen pen2(PS_SOLID, 1, RGB(0, 255, 0));
+	CPen* oldpen2 = pDC->SelectObject(&pen2);
+	for (int i = 0; i <= liczbaobszarow2 + liczbaobszarow; i++)
+	{
+		x0 == x0 + (skl * tablica2[i]);
+
+		pDC->MoveTo((x0 + (skl * tablica2[i])), y0);
+		pDC->LineTo((x0 + (skl * tablica2[i])), (y0 + 200));
+	}
+
+}
+
+//----------Wczytywanie pliku-------------
 
 void CMESProjektView::OnMenuWczytajplik()
 {
@@ -248,8 +277,9 @@ void CMESProjektView::OnMenuWczytajplik()
 
 		if (plik.good())
 		{
-			std::string ignorowanalinia; //linia - smietnik
-			getline(plik, ignorowanalinia); //ignorowanie linii z oznaczeniami. Dalej tez tak samo
+			tablica.push_back(0);
+			std::string ignorowanalinia;
+			getline(plik, ignorowanalinia);
 
 			plik >> liczbaobszarow;
 
@@ -257,40 +287,103 @@ void CMESProjektView::OnMenuWczytajplik()
 			getline(plik, ignorowanalinia);
 			for (int i = 0; i < liczbaobszarow; i++)
 			{
-				plik >> nr >> x1 >> x2;
+				plik >> nr >> x1 >> x2 >> zrodlo >> moc >> przenikalnosc;
 				tablica.push_back(x2);
 				
 				dlugosc = tablica.back();
+				liczbawezlow = tablica.size() * 2;
 				getline(plik, ignorowanalinia);
 			}
 		}
 		obszary = true;
+		zagesc = false;
 
 		Invalidate(TRUE);
 		UpdateWindow();
 	}
 }
 
-//---------------generowanie siatki----------------
-void CMESProjektView::OnMenuGenerujsiatke()
-{
-	// TODO: Add your command handler code here
-}
-
-//----------------zgeszczenie siatki---------------
+//----------------Zageszczenie siatki---------------
 void CMESProjektView::OnMenuZagescsiatke()
 {
-	// TODO: Add your command handler code here
+	obszary = true;
+	zagesc = true;
+	Invalidate(TRUE);
+	UpdateWindow();
+	zageszczenie = zageszczenie + 1;
 }
 
-//---------------rysowanie rozkladu temperatur------------
+//---------------Liczenie rozkladu temperatur------------
 void CMESProjektView::OnMenuRysujrozkladtemp()
 {
 	// TODO: Add your command handler code here
 }
 
-//---------------zapisywanie pliku-----------------------
+//---------------Zapisywanie pliku-----------------------
 void CMESProjektView::OnMenuZapiszplik()
 {
-	// TODO: Add your command handler code here
+	CFile newfile;
+	TCHAR szFilters[] = _T("txt Type Files (*.txt)|*.txt||");
+	CFileDialog fileDlg(TRUE, _T("txt"), _T("*.txt"), OFN_HIDEREADONLY, szFilters);
+	if (fileDlg.DoModal() == IDOK)
+	{
+
+		FilePathName = fileDlg.GetPathName();
+
+		std::ofstream plik; //otworzenie pliku o danej nazwie
+		//licz pom1;
+		int ob = 0;
+		bool b = true;
+		std::vector<int>max;
+		std::vector<int> min;	//numery węzłów zawierających skrajne temperatury
+		//plik.open(FilePathName, std::ios::in);
+		plik.open(FilePathName);
+		plik << "Wyniki dla " << liczbaobszarow << " obszarów materiałowych, podzielonych na siatkę o \n";
+		plik << "Obszary\n";
+		for (int i = 0; i <= tablica2.size() - 1; i++)
+		{
+			plik << tablica2[i] << "\n";
+		}
+		if (liczbaobszarow2 == 0)
+			plik << "Liczba obszarow po zageszczeniu: " << liczbaobszarow << "\n";
+		else
+			plik << "Liczba obszarow po zageszczeniu: " << liczbaobszarow2 << "\n";
+		//plik << " węzłach ( " << wsp_x.size() << " w osi X i " << wsp_y.size() << " w osi Y):\n";
+		//tempmin = wynikRozw[0];
+		//tempmax = wynikRozw[0];
+		/*for (int i = 1; i < wynikRozw.size(); i++)
+		{
+			if (wynikRozw[i] < tempmin)tempmin = wynikRozw[i];
+			if (wynikRozw[i] > tempmax)tempmax = wynikRozw[i];
+		}*/
+		//plik << std::setw(8) << "\nNr węzła" << "|" << std::setw(10) << "X[mm]" << "|" << std::setw(10) << "Y[mm]" << "|";
+		//plik << std::setw(14) << "Temperatura[K]" << "|" << std::setw(10) << "Nr obszaru" << "|" << std::setw(22) << "Przewodność X[W/(m*K)]" << "|" << std::setw(22) << "Przewodność Y[W/(m*K)]" << "|" << std::setw(17) << "Moc źródła[W/m^2]\n";
+		//for (int i = 0; i < wynikRozw.size(); i++)
+		/*{
+			pom1.ktory_obszar(wsp_x[i % wsp_x.size()], wsp_y[i / wsp_x.size()], ob, b, wektor_obszarow);
+			plik << std::setw(8) << i << "|" << std::setw(10) << wsp_x[i % wsp_x.size()] << "|" << std::setw(10) << wsp_y[i / wsp_x.size()] << "|";
+			plik << std::setw(14) << wynikRozw[i] << "|" << std::setw(10) << ob << "|" << std::setw(22) << wektor_obszarow[ob].przewodnosc_x * 1000 << "|" << std::setw(22) << wektor_obszarow[ob].przewodnosc_y * 1000 << "|" << std::setw(17) << wektor_obszarow[ob].moc_zrodla * pow(10, 6) << "\n";
+			if (fabs(wynikRozw[i] - tempmax) < 0.0000001)max.push_back(i);
+			if (fabs(wynikRozw[i] - tempmin) < 0.0000001)min.push_back(i);
+		}*/
+		//plik << "\nTemperatura maksymalna [K]: " << tempmax << ". Wystąpiła dla węzłów nr: ";
+		/*if (max.size() > 0)
+		{
+			for (int i = 0; i < max.size() - 1; i++)
+			{
+				plik << max[i] << ", ";
+			}
+			plik << max[max.size() - 1] << ".";
+		}*/
+		//plik << "\nTemperatura minimalna [K]: " << tempmin << ". Wystąpiła dla węzłów nr: ";
+		/*if (min.size() > 0)
+		{
+			for (int i = 0; i < min.size() - 1; i++)
+			{
+				plik << min[i] << ", ";
+			}
+			plik << min[min.size() - 1] << ".";
+		}*/
+		plik.close();
+	}
 }

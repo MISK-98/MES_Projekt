@@ -1,7 +1,10 @@
 Ilosc obszarow:
-4
-Nr obszaru:	x1:	x2:	
-1	0	4
-2	4	6.3
-3	6.3	7.5
-4	7.5	10
+7
+Nr obszaru:	x1[mm]:	x2[mm]:	zrodlo?:	moc:	przenikalnosc:	material:
+1	0	2.1	0
+2	2.1	8.6	0
+3	8.6	22	0
+4	22	23.3	1
+5	23.3	24	0
+6	24	29.9	0
+7	29.9	31	0
