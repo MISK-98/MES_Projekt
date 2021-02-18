@@ -1,4 +1,4 @@
-﻿#pragma once //-------wszystko tutaj jest ok---------
+﻿#pragma once
 
 // Including SDKDDKVer.h defines the highest available Windows platform.
 

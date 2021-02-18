@@ -1,5 +1,5 @@
 ﻿
-// MainFrm.h : interface of the CMainFrame class ---------- tutaj jest wszystko ok-------
+// MainFrm.h : interface of the CMainFrame class
 //
 
 #pragma once

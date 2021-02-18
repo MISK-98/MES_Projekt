@@ -1,10 +1,11 @@
 Ilosc obszarow:
-7
-Nr obszaru:	x1[mm]:	x2[mm]:	zrodlo?:	moc:	przenikalnosc:	material:
-1	0	2.1	0
-2	2.1	8.6	0
-3	8.6	22	0
-4	22	23.3	1
-5	23.3	24	0
-6	24	29.9	0
-7	29.9	31	0
+6
+Nr obszaru:	x1[mm]:	x2[mm]:	przewodnosc:	moc_zrodla:	material:
+1	0	10	370	9e7	miedz
+2	10	23	317	0	zloto
+3	23	45	200	8e7	aluminium
+4	45	67	370	0	miedz
+5	67	100	317	0	zloto
+6	100	120	317	0	zloto
+Warunki brzegowe:
+293	293

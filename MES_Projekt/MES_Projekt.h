@@ -1,4 +1,4 @@
-﻿// MES_Projekt.h : main header file for the MES_Projekt application ----- wszystko jest ok
+﻿// MES_Projekt.h : main header file for the MES_Projekt application
 //
 #pragma once
 

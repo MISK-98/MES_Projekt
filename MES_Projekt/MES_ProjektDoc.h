@@ -1,5 +1,5 @@
 ﻿
-// MES_ProjektDoc.h : interface of the CMESProjektDoc class ------ jest wszystko + jeden fragment kodu do ogarniecia pozniej
+// MES_ProjektDoc.h : interface of the CMESProjektDoc class
 //
 
 
@@ -46,8 +46,4 @@ protected:
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
-//public:
-	//void z_podstawowego(Element e, float Xp, float Yp, float* Xw, float* Yw);
-	// wektor wszystkich elementów
-	//std::vector<Element> elementy;
 };

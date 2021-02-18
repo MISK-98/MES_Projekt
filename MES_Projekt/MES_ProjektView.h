@@ -19,37 +19,41 @@ public:
 	CString FilePathName;
 	float liczbaobszarow = 0; //obszary z pliku
 	float liczbaobszarow2 = 0; //obszary po zageszczeniu
-	float liczbawezlow; //liczba wezlow z pliku
-	float liczbawezlow2; //liczba wezlow po zageszczeniu
-	float zrodlo; //czy material jest zrodlem?
-	float moc; //jesli tak to moc zrodla
-	float przenikalnosc; //przenikalnosc cieplna materialu
 	float zageszczenie = 2; //zageszczenie siatki
 	float dlugosc; //dlugosc preta
 	float x1; //wspolrzedna z pliku
 	float x2; //wspolrzedna z pliku
 	int nr; //numer obszaru
-	// pomocnicze
+	float wb1; //pierwszy warunek brzegowy
+	float wb2; //drugi warunek brzegowy
+	float tempmin;
+	float tempmax;
 	float y0 = 20;
 	float x0 = 50;
 	bool obszary = false;
 	bool zagesc = false;
 	float skl;
-	float wsp;
-	float wsp2;
-	float t = 0;
 
+	std::vector<float> wspolrz; //wspolrzedne przed zageszczeniem
+	std::vector<float> wspolrz2; //wspolrzedne po zageszczeniu
+	std::vector<float> lambda; //przenikalnosci cieplne
+	std::vector<float> Q; //wydajnosc zrodel
+	std::vector<float> L; //dlugosci obszarow
+	std::vector<float> L_w_metrach; //długości po zagęszczeniu wyrażone w metrach
 	std::vector<float> wynikRozw;
+	std::vector<float> obliczenia;
+	std::vector<float> lambda_new;
+	std::vector<float> Q_new;
+	std::vector<float> Temp;
+	std::vector<float> L1;
+	//std::vector<float> warunkiBrzegowe;
 
 
 
 	// Operations
 public:
-	std::vector<float> tablica;
-	std::vector<float> tablica2;
-	std::vector<float> obliczenia;
 
-// Overrides----tego nie ruszam
+// Overrides
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -58,7 +62,7 @@ protected:
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
-// Implementation---- tego nie ruszam ---
+// Implementation
 public:
 	virtual ~CMESProjektView();
 #ifdef _DEBUG
@@ -79,6 +83,7 @@ public:
 	void czytaj(std::fstream& plik);
 	void RysujObszary(CDC* pDC);
 	void RysujSiatke(CDC* pDC);
+	void Rysujtemp(CDC* pDC);
 	void Zageszczanie();
 };
 

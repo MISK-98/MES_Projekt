@@ -1,5 +1,4 @@
-﻿
-// MES_ProjektDoc.cpp : implementation of the CMESProjektDoc class
+﻿// MES_ProjektDoc.cpp : implementation of the CMESProjektDoc class
 //
 
 #include "pch.h"

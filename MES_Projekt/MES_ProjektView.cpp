@@ -61,7 +61,7 @@ BOOL CMESProjektView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CMESProjektView drawing
 
-//-------------------elementy wizualne w menu-----------------
+//-------------------początkowe elementy wizualne w menu-----------------
 void CMESProjektView::OnDraw(CDC *pDC)
 {
 	CMESProjektDoc* pDoc = GetDocument();
@@ -91,11 +91,7 @@ void CMESProjektView::OnDraw(CDC *pDC)
 
 	CString floatString;
 
-	//--------------Zapisanie tekstu z menu, bieranie poleceń w całość------------
-
 	floatString = "Ilosc obszarow:";
-	pDC->TextOutW(50, 250, floatString);
-	floatString = "Liczba wezlow siatki:";
 	pDC->TextOutW(50, 280, floatString);
 	floatString = "Temperatura maksymalna [K]:";
 	pDC->TextOutW(50, 310, floatString);
@@ -111,6 +107,8 @@ void CMESProjektView::OnDraw(CDC *pDC)
 	pDC->TextOutW(440, 273, floatString);
 	floatString = "Tu bedzie temp_max";
 	pDC->TextOutW(950, 273, floatString);
+	
+	//-----------zmiany w menu po wczytaniu pliku-------------
 
 	if (obszary)
 	{
@@ -118,65 +116,96 @@ void CMESProjektView::OnDraw(CDC *pDC)
 		floatString.Format(_T("%.0f"), dlugosc);
 		pDC->TextOutW(935, 220, floatString);
 		floatString.Format(_T("%.0f"), liczbaobszarow);
-		pDC->TextOutW(160, 250, floatString);
+		pDC->TextOutW(160, 280, floatString);
 		floatString.Format(_T("%.0f"), dlugosc);
 		pDC->TextOutW(150, 340, floatString);
-		floatString.Format(_T("%.0f"), liczbawezlow);
-		pDC->TextOutW(195, 280, floatString);
 		//floatString.Format(_T("%.0f"), tempmax);
 		//pDC->TextOutW(1170, 100, floatString);
 	}
 
+	//----------------proces zagęszczania siatki---------------
+
 	if (zagesc)
 	{
-		liczbawezlow = 0;
-		for (int i = 0; i < tablica.size(); i++)
+		float wsp = 0; // zerowanie zmiennych i wektorów przed nowym zagęszczaniem
+		float wsp2 = 0;
+		float t = 0;
+		float wsp_w_m = 0;
+		float Ltym = 0;
+		wspolrz2.clear();
+		L.clear();
+		L1.clear();
+		L_w_metrach.clear();
+		obliczenia.clear();
+		lambda_new.clear();
+		Q_new.clear();
+		liczbaobszarow2 = 0;
+		for (int i = 0; i < wspolrz.size(); i++)
 		{
-			tablica2.push_back(tablica[i]);
+			wspolrz2.push_back(wspolrz[i]); //zapełnianie wektora starymi wartościami
 		}
-		sort(tablica2.begin(), tablica2.end());
-		for (int i = 0; i < tablica2.size() - 1; i++)
+		sort(wspolrz2.begin(), wspolrz2.end());
+		for (int i = 0; i < wspolrz2.size() - 1; i++)
 		{
-			wsp = (tablica2[i + 1] - tablica2[i]) / zageszczenie;
+			wsp = (wspolrz2[i + 1] - wspolrz2[i]) / zageszczenie; //zagęszczanie i licznie współrzędnych nowych obszarów
 			for (int j = 0; j < zageszczenie; j++)
 			{
-				wsp2 = tablica2[i] + t;
+				wsp2 = wspolrz2[i] + t;
 				obliczenia.push_back(wsp2);
 				t = t + wsp;
 			}
 			t = 0;
 			wsp = 0;
+
+		}
+		wspolrz2.clear();
+		for (int i = 0; i < obliczenia.size(); i++) //zapełnianie wektora nowymi współrzędnymi wynikającymi z zagęszczeń
+		{
+			wspolrz2.push_back(obliczenia[i]);
+		}
+		sort(wspolrz2.begin(), wspolrz2.end());
+		wspolrz2.push_back(wspolrz.back());
+		liczbaobszarow2 = wspolrz2.size() - 1;
+
+		for (int i = 0; i < wspolrz2.size() - 1; i++) //tworzenie wektora odcinków przeliczonych na metry
+		{
+			Ltym = (wspolrz2[i + 1] - wspolrz2[i]) * 0.001; 
+			L.push_back(Ltym);
 		}
 
-		for (int i = 0; i < obliczenia.size(); i++)
+		for (int i = 0; i < lambda.size(); i++) //przeliczanie przenikalności zgodnie z zagęszczeniem
 		{
-			tablica2.push_back(obliczenia[i]);
+			for (int j = 0; j < zageszczenie; j++)
+			{
+				lambda_new.push_back(lambda[i]);
+			}
 		}
-		sort(tablica2.begin(), tablica2.end());
-		liczbaobszarow2 = tablica2.size() - 1 - liczbaobszarow;
-		liczbawezlow2 = (tablica2.size() - liczbaobszarow) * 2;
+
+		for (int i = 0; i < Q.size(); i++) //przeliczanie wydajności zgodnie z zagęszczeniem
+		{
+			for (int j = 0; j < zageszczenie; j++)
+			{
+				Q_new.push_back(Q[i]);
+			}
+		}
+
+		//----------------zmiany w menu po zagęszczeniu siatki--------------
 
 		RysujSiatke(pDC);
 		floatString.Format(_T("%.0f"), dlugosc);
 		pDC->TextOutW(935, 220, floatString);
 		floatString.Format(_T("%.0f"), liczbaobszarow2);
-		pDC->TextOutW(160, 250, floatString);
+		pDC->TextOutW(160, 280, floatString);
 		floatString.Format(_T("%.0f"), dlugosc);
 		pDC->TextOutW(150, 340, floatString);
-		floatString.Format(_T("%.0f"), liczbawezlow2);
-		pDC->TextOutW(195, 280, floatString);
 		floatString.Format(_T("%.0f"), zageszczenie);
-		pDC->TextOutW(200, 370, floatString);
-
-		tablica2.clear();
-		obliczenia.clear();
-		liczbaobszarow2 = 0;
+		pDC->TextOutW(195, 370, floatString);
 
 	}
 }
 
 
-// CMESProjektView printing- tego nie ruszam
+// CMESProjektView printing
 
 BOOL CMESProjektView::OnPreparePrinting(CPrintInfo* pInfo)
 {
@@ -195,7 +224,7 @@ void CMESProjektView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 }
 
 
-// CMESProjektView diagnostics- tego nie ruszam
+// CMESProjektView diagnostics
 
 #ifdef _DEBUG
 void CMESProjektView::AssertValid() const
@@ -226,12 +255,12 @@ void CMESProjektView::RysujObszary(CDC* pDC)
 	skl = 900 / dlugosc;  //do przeskalowania
 	CPen pen2(PS_SOLID, 2, RGB(0, 0, 0));
 	CPen* oldpen2 = pDC->SelectObject(&pen2);
-	for (int i = 0; i <= liczbaobszarow; i++)
+	for (int i = 0; i < liczbaobszarow; i++)
 	{
-		x0 == x0 + (skl * tablica[i]);
+		x0 == x0 + (skl * wspolrz[i]);
 
-		pDC->MoveTo((x0 + (skl * tablica[i])), y0);
-		pDC->LineTo((x0 + (skl * tablica[i])), (y0 + 200));
+		pDC->MoveTo((x0 + (skl * wspolrz[i])), y0);
+		pDC->LineTo((x0 + (skl * wspolrz[i])), (y0 + 200));
 	}
 }
 
@@ -243,17 +272,98 @@ void CMESProjektView::RysujSiatke(CDC* pDC)
 	y0 = 20;
 	CPen pen2(PS_SOLID, 1, RGB(0, 255, 0));
 	CPen* oldpen2 = pDC->SelectObject(&pen2);
-	for (int i = 0; i <= liczbaobszarow2 + liczbaobszarow; i++)
+	for (int i = 0; i <= liczbaobszarow2; i++)
 	{
-		x0 == x0 + (skl * tablica2[i]);
+		x0 == x0 + (skl * wspolrz2[i]);
 
-		pDC->MoveTo((x0 + (skl * tablica2[i])), y0);
-		pDC->LineTo((x0 + (skl * tablica2[i])), (y0 + 200));
+		pDC->MoveTo((x0 + (skl * wspolrz2[i])), y0);
+		pDC->LineTo((x0 + (skl * wspolrz2[i])), (y0 + 200));
 	}
+}
+
+//-----------------Rysowanie rozkładu temperatury---------------
+
+void CMESProjektView::Rysujtemp(CDC* pDC)
+{
 
 }
 
-//----------Wczytywanie pliku-------------
+//----------------Główna funkcja do obliczeń z MES--------------------
+
+std::vector<float> licz(std::vector<float> L, std::vector<float> lambda_new, std::vector<float> Q_new, float wb1, float wb2)
+{
+	std::vector<float> a;
+	std::vector<float> b;
+	std::vector<float> c;
+	std::vector<float> d;
+
+	//---------------wypełnianie zerami wartości z diagonali (wektory a, b, c, d) oraz wektora rozwiązań d---------------
+
+	for (int i = 0; i < L.size(); i++)
+	{
+		a.push_back(0);
+		b.push_back(0);
+		c.push_back(0);
+		d.push_back(0);
+	}
+
+	//------------liczenie wartości wektorów a, b, c, d-------------
+
+	b[0] += lambda_new[0] / L[0];
+	d[0] += Q_new[0] * L[0] / 2;
+
+	for (int i = 0; i < L.size() - 1; i++)
+	{
+		a[i + 1] += -(lambda_new[i] / L[i]);
+	}
+
+	for (int i = 0; i < L.size() - 1; i++)
+	{
+		c[i] += -(lambda_new[i] / L[i]);
+	}
+
+	for (int i = 1; i < L.size(); i++)
+	{
+		b[i] += (lambda_new[i] / L[i]) + (lambda_new[i - 1] / L[i - 1]);
+	}
+
+	for (int i = 1; i < L.size(); i++)
+	{
+		d[i] += (Q_new[i] * L[i] / 2) + (Q_new[i - 1] * L[i - 1] / 2);
+	}
+
+	//--------Podstawienie warunków brzegowych--------------
+
+	d[0] = b[0] * wb1 * 10e8;
+	d[L.size() - 1] = b[L.size() - 1] * wb2 * 10e8;
+
+	b[0] *= 10e8;
+	b[L.size() - 1] *= 10e8;
+	
+	//-----------Rozwiązanie układu równań wynikającego z macierzy (w celu wyliczenia wektora temperatur)------------
+
+	c[0] /= b[0];
+	d[0] /= b[0];
+	
+	for (int i = 1; i < L.size(); i++)
+	{
+		c[i] /= b[i] - a[i] * c[i - 1];
+		d[i] = (d[i] - a[i] * d[i - 1]) / (b[i] - a[i] * c[i - 1]);
+	}
+
+	for (int i = L.size() - 1; i-- > 0;) 
+	{
+		d[i] -= c[i] * d[i + 1];
+	}
+	
+	//--------------Zwrócenie wektora z temperaturami------------------
+
+	return d;
+	
+}
+
+
+//----------Przycisk- Wczytywanie pliku-------------
 
 void CMESProjektView::OnMenuWczytajplik()
 {
@@ -272,12 +382,17 @@ void CMESProjektView::OnMenuWczytajplik()
 		oldFile.Close();
 
 
-		std::fstream plik; //otworzenie pliku o danej nazwie
+		std::fstream plik;
 		plik.open(FilePathName, std::ios::in);
+
+		//------------czytanie danych z pliku-----------------
 
 		if (plik.good())
 		{
-			tablica.push_back(0);
+			float lambtym;
+			char nazwa;
+			float Qtym;
+			wspolrz.push_back(0);
 			std::string ignorowanalinia;
 			getline(plik, ignorowanalinia);
 
@@ -287,13 +402,17 @@ void CMESProjektView::OnMenuWczytajplik()
 			getline(plik, ignorowanalinia);
 			for (int i = 0; i < liczbaobszarow; i++)
 			{
-				plik >> nr >> x1 >> x2 >> zrodlo >> moc >> przenikalnosc;
-				tablica.push_back(x2);
-				
-				dlugosc = tablica.back();
-				liczbawezlow = tablica.size() * 2;
+				plik >> nr >> x1 >> x2 >> lambtym >> Qtym >> nazwa;
+				wspolrz.push_back(x2);
+				lambda.push_back(lambtym);
+				Q.push_back(Qtym);
+
 				getline(plik, ignorowanalinia);
 			}
+			getline(plik, ignorowanalinia);
+			plik >> wb1 >> wb2;
+
+			dlugosc = wspolrz.back();
 		}
 		obszary = true;
 		zagesc = false;
@@ -303,23 +422,37 @@ void CMESProjektView::OnMenuWczytajplik()
 	}
 }
 
-//----------------Zageszczenie siatki---------------
+//----------------Przycisk- Zageszczenie siatki---------------
 void CMESProjektView::OnMenuZagescsiatke()
 {
 	obszary = true;
 	zagesc = true;
 	Invalidate(TRUE);
 	UpdateWindow();
-	zageszczenie = zageszczenie + 1;
+	zageszczenie = zageszczenie + 1; //zwiększanie zagęszczenia w razie kolejnego użycia przycisku
 }
 
-//---------------Liczenie rozkladu temperatur------------
+//---------------Przycisk- Liczenie rozkladu temperatur------------
 void CMESProjektView::OnMenuRysujrozkladtemp()
 {
-	// TODO: Add your command handler code here
+	Temp = licz(L, lambda_new, Q_new, wb1, wb2); //liczenie wektora temperatur
+
+	tempmin = Temp[0];
+	for (int i = 1; i < Temp.size(); i++) //szukanie mainimalnej temperatury
+	{
+		if (tempmin > Temp[i])
+			tempmin = Temp[i];
+	}
+
+	tempmax = Temp[0];
+	for (int i = 1; i < Temp.size(); i++) //szukanie maksymalnej temperatury
+	{
+		if (tempmax < Temp[i])
+			tempmax = Temp[i];
+	}
 }
 
-//---------------Zapisywanie pliku-----------------------
+//---------------Przycisk- Zapisywanie pliku-----------------------
 void CMESProjektView::OnMenuZapiszplik()
 {
 	CFile newfile;
@@ -327,22 +460,22 @@ void CMESProjektView::OnMenuZapiszplik()
 	CFileDialog fileDlg(TRUE, _T("txt"), _T("*.txt"), OFN_HIDEREADONLY, szFilters);
 	if (fileDlg.DoModal() == IDOK)
 	{
-
 		FilePathName = fileDlg.GetPathName();
+		std::ofstream plik;
 
-		std::ofstream plik; //otworzenie pliku o danej nazwie
-		//licz pom1;
-		int ob = 0;
-		bool b = true;
-		std::vector<int>max;
-		std::vector<int> min;	//numery węzłów zawierających skrajne temperatury
-		//plik.open(FilePathName, std::ios::in);
+		//--------------edycja pliku wynikowego---------------
+
 		plik.open(FilePathName);
 		plik << "Wyniki dla " << liczbaobszarow << " obszarów materiałowych, podzielonych na siatkę o \n";
-		plik << "Obszary\n";
-		for (int i = 0; i <= tablica2.size() - 1; i++)
+		plik << "Szerokosci odcinkow:\n";
+		for (int i = 0; i < L.size(); i++)
 		{
-			plik << tablica2[i] << "\n";
+			plik << L[i] << "\n";
+		}
+		plik << "Temperatury odcinkow:\n";
+		for (int i = 0; i < Temp.size(); i++)
+		{
+			plik << Temp[i] << "\n";
 		}
 		if (liczbaobszarow2 == 0)
 			plik << "Liczba obszarow po zageszczeniu: " << liczbaobszarow << "\n";
